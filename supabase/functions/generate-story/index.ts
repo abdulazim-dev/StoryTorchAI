@@ -50,9 +50,9 @@ Focus on showing rather than telling, with rich sensory details and compelling d
       JSON.stringify({ text: generatedText }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
-  } catch (error) {
-    console.error('Error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+  } catch (err) {
+    console.error('Error:', err);
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
     return new Response(
       JSON.stringify({ error: errorMessage }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
