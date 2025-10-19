@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus, BookOpen, Clock, Sparkles, LogOut, Settings as SettingsIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { getUserFriendlyError, logError } from "@/lib/errorHandler";
 
 interface Project {
   id: string;
@@ -75,8 +76,8 @@ const Dashboard = () => {
       if (error) throw error;
       setProjects(data || []);
     } catch (error: any) {
-      toast.error("Failed to load projects");
-      console.error(error);
+      toast.error(getUserFriendlyError(error));
+      logError('Dashboard.fetchProjects', error);
     } finally {
       setLoading(false);
     }
@@ -114,7 +115,7 @@ const Dashboard = () => {
         navigate(`/editor/${data.id}`);
       }
     } catch (error: any) {
-      toast.error(error.message || "Failed to create project");
+      toast.error(getUserFriendlyError(error));
     } finally {
       setLoading(false);
     }

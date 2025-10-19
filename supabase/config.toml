@@ -1,1 +1,4 @@
 project_id = "ethqdkuxziygiwjmhmaw"
+
+[functions.generate-story]
+verify_jwt = true

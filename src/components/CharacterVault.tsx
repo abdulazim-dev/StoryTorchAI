@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Plus, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { logError } from "@/lib/errorHandler";
 
 interface CharacterVaultProps {
   projectId: string;
@@ -24,7 +25,7 @@ const CharacterVault = ({ projectId }: CharacterVaultProps) => {
         .eq("project_id", projectId);
       setCharacters(data || []);
     } catch (error) {
-      console.error(error);
+      logError('CharacterVault.loadCharacters', error);
     }
   };
 

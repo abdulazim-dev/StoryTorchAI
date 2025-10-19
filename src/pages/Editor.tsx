@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import CharacterVault from "@/components/CharacterVault";
 import ChapterList from "@/components/ChapterList";
 import AIAssistant from "@/components/AIAssistant";
+import { getUserFriendlyError, logError } from "@/lib/errorHandler";
 
 interface Project {
   id: string;
@@ -61,8 +62,8 @@ const Editor = () => {
       if (error) throw error;
       setProject(data);
     } catch (error: any) {
-      toast.error("Failed to load project");
-      console.error(error);
+      toast.error(getUserFriendlyError(error));
+      logError('Editor.loadProject', error);
       navigate("/dashboard");
     } finally {
       setLoading(false);
@@ -86,8 +87,8 @@ const Editor = () => {
         setContent(data[0].content || "");
       }
     } catch (error: any) {
-      toast.error("Failed to load chapters");
-      console.error(error);
+      toast.error(getUserFriendlyError(error));
+      logError('Editor.loadChapters', error);
     }
   };
 
@@ -115,8 +116,8 @@ const Editor = () => {
       setContent("");
       toast.success("Chapter created!");
     } catch (error: any) {
-      toast.error("Failed to create chapter");
-      console.error(error);
+      toast.error(getUserFriendlyError(error));
+      logError('Editor.handleCreateChapter', error);
     }
   };
 
@@ -146,8 +147,8 @@ const Editor = () => {
           : ch
       ));
     } catch (error: any) {
-      toast.error("Failed to save chapter");
-      console.error(error);
+      toast.error(getUserFriendlyError(error));
+      logError('Editor.handleSaveChapter', error);
     } finally {
       setSaving(false);
     }

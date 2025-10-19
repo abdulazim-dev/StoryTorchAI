@@ -4,6 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Sparkles, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { getUserFriendlyError } from "@/lib/errorHandler";
 
 interface AIAssistantProps {
   projectId: string;
@@ -36,7 +37,7 @@ const AIAssistant = ({ projectId, currentChapter, tone, onGenerate }: AIAssistan
         toast.success("Content generated!");
       }
     } catch (error: any) {
-      toast.error(error.message || "Failed to generate content");
+      toast.error(getUserFriendlyError(error));
     } finally {
       setGenerating(false);
     }

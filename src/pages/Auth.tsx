@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sparkles, Mail, Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { getUserFriendlyError } from "@/lib/errorHandler";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -50,7 +51,7 @@ const Auth = () => {
       setPassword("");
       setFullName("");
     } catch (error: any) {
-      toast.error(error.message || "Failed to sign up");
+      toast.error(getUserFriendlyError(error));
     } finally {
       setLoading(false);
     }
@@ -71,7 +72,7 @@ const Auth = () => {
       toast.success("Welcome back!");
       navigate("/dashboard");
     } catch (error: any) {
-      toast.error(error.message || "Failed to sign in");
+      toast.error(getUserFriendlyError(error));
     } finally {
       setLoading(false);
     }
@@ -89,7 +90,7 @@ const Auth = () => {
 
       if (error) throw error;
     } catch (error: any) {
-      toast.error(error.message || "Failed to sign in with Google");
+      toast.error(getUserFriendlyError(error));
       setLoading(false);
     }
   };
