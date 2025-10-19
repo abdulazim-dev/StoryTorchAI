@@ -5,6 +5,18 @@ import { Sparkles, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { getUserFriendlyError } from "@/lib/errorHandler";
+import { z } from "zod";
+
+// Input validation schema
+const promptInputSchema = z.object({
+  prompt: z.string()
+    .trim()
+    .min(1, "Prompt cannot be empty")
+    .max(2000, "Prompt must be less than 2000 characters"),
+  tone: z.string().trim().min(1).max(50),
+  projectId: z.string().uuid("Invalid project ID"),
+  chapterId: z.string().uuid("Invalid chapter ID"),
+});
 
 interface AIAssistantProps {
   projectId: string;
@@ -18,15 +30,18 @@ const AIAssistant = ({ projectId, currentChapter, tone, onGenerate }: AIAssistan
   const [generating, setGenerating] = useState(false);
 
   const handleGenerate = async () => {
-    if (!prompt.trim()) {
-      toast.error("Please enter a prompt");
-      return;
-    }
-
     setGenerating(true);
     try {
+      // Validate input before sending
+      const validatedInput = promptInputSchema.parse({
+        prompt,
+        tone,
+        projectId,
+        chapterId: currentChapter.id,
+      });
+
       const { data, error } = await supabase.functions.invoke("generate-story", {
-        body: { prompt, tone, projectId, chapterId: currentChapter.id },
+        body: validatedInput,
       });
 
       if (error) throw error;
@@ -37,7 +52,13 @@ const AIAssistant = ({ projectId, currentChapter, tone, onGenerate }: AIAssistan
         toast.success("Content generated!");
       }
     } catch (error: any) {
-      toast.error(getUserFriendlyError(error));
+      if (error instanceof z.ZodError) {
+        // Handle validation errors with user-friendly messages
+        const firstError = error.errors[0];
+        toast.error(firstError.message);
+      } else {
+        toast.error(getUserFriendlyError(error));
+      }
     } finally {
       setGenerating(false);
     }
@@ -58,7 +79,11 @@ const AIAssistant = ({ projectId, currentChapter, tone, onGenerate }: AIAssistan
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
         className="mb-4 flex-1"
+        maxLength={2000}
       />
+      <p className="mb-2 text-xs text-muted-foreground">
+        {prompt.length}/2000 characters
+      </p>
 
       <Button
         onClick={handleGenerate}

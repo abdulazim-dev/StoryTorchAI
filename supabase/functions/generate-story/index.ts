@@ -1,9 +1,18 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Server-side input validation schema
+const requestSchema = z.object({
+  prompt: z.string().trim().min(1).max(2000),
+  tone: z.string().trim().min(1).max(50),
+  projectId: z.string().uuid(),
+  chapterId: z.string().uuid(),
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -14,13 +23,26 @@ serve(async (req) => {
     // Verify authentication
     const authHeader = req.headers.get('authorization');
     if (!authHeader) {
+      console.error('Missing authorization header');
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const { prompt, tone, projectId, chapterId } = await req.json();
+    // Parse and validate request body
+    const requestBody = await req.json();
+    const validationResult = requestSchema.safeParse(requestBody);
+    
+    if (!validationResult.success) {
+      console.error('Validation error:', validationResult.error);
+      return new Response(
+        JSON.stringify({ error: 'Invalid request data', details: validationResult.error.errors }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { prompt, tone, projectId, chapterId } = validationResult.data;
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 
     if (!LOVABLE_API_KEY) {
@@ -61,9 +83,9 @@ Focus on showing rather than telling, with rich sensory details and compelling d
     );
   } catch (err) {
     console.error('Error:', err);
-    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    // Don't expose internal error details to client
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: 'An error occurred while generating content' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
