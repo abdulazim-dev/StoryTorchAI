@@ -43,22 +43,37 @@ const Dashboard = () => {
   }, []);
 
   const checkUser = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (!session) {
+    try {
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error('Session error:', sessionError);
+        navigate("/auth");
+        return;
+      }
+
+      if (!session) {
+        navigate("/auth");
+        return;
+      }
+
+      // Fetch user profile
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", session.user.id)
+        .single();
+
+      if (profileError) {
+        logError('Dashboard.checkUser.fetchProfile', profileError);
+      }
+
+      if (profile) {
+        setUserName(profile.full_name || session.user.email?.split("@")[0] || "Writer");
+      }
+    } catch (error) {
+      logError('Dashboard.checkUser', error);
       navigate("/auth");
-      return;
-    }
-
-    // Fetch user profile
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("full_name")
-      .eq("id", session.user.id)
-      .single();
-
-    if (profile) {
-      setUserName(profile.full_name || session.user.email?.split("@")[0] || "Writer");
     }
   };
 

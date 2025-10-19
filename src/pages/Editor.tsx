@@ -45,8 +45,20 @@ const Editor = () => {
   }, [projectId]);
 
   const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        logError('Editor.checkAuth', error);
+        navigate("/auth");
+        return;
+      }
+
+      if (!session) {
+        navigate("/auth");
+      }
+    } catch (error) {
+      logError('Editor.checkAuth', error);
       navigate("/auth");
     }
   };
