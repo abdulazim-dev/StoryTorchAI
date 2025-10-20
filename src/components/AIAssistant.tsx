@@ -73,6 +73,15 @@ const AIAssistant = ({ projectId, currentChapter, tone, onGenerate }: AIAssistan
     }
   };
 
+  // Debug logging
+  console.log('Subscription state:', {
+    loading: subscription.loading,
+    tier: subscription.tier,
+    creditsUsed: subscription.creditsUsedThisMonth,
+    creditsAllowed: subscription.monthlyChapterCredits,
+    canGenerate: subscription.canGenerateChapter()
+  });
+
   return (
     <div className="flex h-full flex-col p-4">
       <div className="mb-4">
