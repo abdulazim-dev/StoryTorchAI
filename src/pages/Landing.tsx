@@ -237,7 +237,7 @@ const Landing = () => {
               <p className="text-sm text-muted-foreground">
                 © 2025 StoryForge. AI Story Architect for creators.
               </p>
-              <p className="text-xs text-muted-foreground/70 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 Made by Abdul Azim
               </p>
             </div>
