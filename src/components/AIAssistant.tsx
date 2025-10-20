@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Sparkles, Loader2, Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { getUserFriendlyError } from "@/lib/errorHandler";
 import { z } from "zod";
+import { useSubscription } from "@/hooks/useSubscription";
 
 // Input validation schema
 const promptInputSchema = z.object({
@@ -28,8 +29,15 @@ interface AIAssistantProps {
 const AIAssistant = ({ projectId, currentChapter, tone, onGenerate }: AIAssistantProps) => {
   const [prompt, setPrompt] = useState("");
   const [generating, setGenerating] = useState(false);
+  const subscription = useSubscription();
 
   const handleGenerate = async () => {
+    // Check if user has credits
+    if (!subscription.canGenerateChapter()) {
+      toast.error(`You've used all ${subscription.monthlyChapterCredits} credits this month. Upgrade to get more!`);
+      return;
+    }
+
     setGenerating(true);
     try {
       // Validate input before sending
@@ -50,6 +58,7 @@ const AIAssistant = ({ projectId, currentChapter, tone, onGenerate }: AIAssistan
         onGenerate(data.text);
         setPrompt("");
         toast.success("Content generated!");
+        subscription.refreshSubscription(); // Refresh to update credit count
       }
     } catch (error: any) {
       if (error instanceof z.ZodError) {
@@ -72,6 +81,18 @@ const AIAssistant = ({ projectId, currentChapter, tone, onGenerate }: AIAssistan
           AI Assistant
         </h3>
         <p className="text-xs text-muted-foreground">Generate and enhance your story</p>
+        <div className="mt-2 text-xs text-muted-foreground">
+          {subscription.loading ? (
+            <span>Loading credits...</span>
+          ) : (
+            <span>
+              {subscription.creditsUsedThisMonth} / {subscription.monthlyChapterCredits} credits used this month
+              {subscription.tier === 'free' && ' (Free)'}
+              {subscription.tier === 'pro' && ' (Pro)'}
+              {subscription.tier === 'studio' && ' (Studio)'}
+            </span>
+          )}
+        </div>
       </div>
 
       <Textarea
@@ -87,10 +108,15 @@ const AIAssistant = ({ projectId, currentChapter, tone, onGenerate }: AIAssistan
 
       <Button
         onClick={handleGenerate}
-        disabled={generating}
+        disabled={generating || !subscription.canGenerateChapter()}
         className="w-full bg-primary"
       >
-        {generating ? (
+        {!subscription.canGenerateChapter() ? (
+          <>
+            <Lock className="mr-2 h-4 w-4" />
+            Out of Credits
+          </>
+        ) : generating ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             Generating...

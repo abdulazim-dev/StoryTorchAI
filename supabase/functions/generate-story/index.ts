@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.75.1';
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
@@ -30,6 +31,26 @@ serve(async (req) => {
       );
     }
 
+    // Create Supabase client with auth token
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseClient = createClient(supabaseUrl, supabaseKey, {
+      global: {
+        headers: { Authorization: authHeader },
+      },
+    });
+
+    // Get authenticated user
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token);
+
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      );
+    }
+
     // Parse and validate request body
     const requestBody = await req.json();
     const validationResult = requestSchema.safeParse(requestBody);
@@ -43,6 +64,48 @@ serve(async (req) => {
     }
 
     const { prompt, tone, projectId, chapterId } = validationResult.data;
+
+    // Check subscription and credits
+    const { data: profile, error: profileError } = await supabaseClient
+      .from('profiles')
+      .select('subscription_tier, monthly_chapter_credits, credits_used_this_month')
+      .eq('id', user.id)
+      .single();
+
+    if (profileError) {
+      console.error('Profile fetch error:', profileError);
+      return new Response(
+        JSON.stringify({ error: 'Failed to verify subscription' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      );
+    }
+
+    const creditsUsed = profile.credits_used_this_month || 0;
+    const creditsAllowed = profile.monthly_chapter_credits || 5;
+
+    if (creditsUsed >= creditsAllowed) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Credit limit reached',
+          message: `You've used all ${creditsAllowed} credits this month. Upgrade to get more!`
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
+      );
+    }
+
+    // Verify user owns the project
+    const { data: project, error: projectError } = await supabaseClient
+      .from('projects')
+      .select('user_id')
+      .eq('id', projectId)
+      .single();
+
+    if (projectError || !project || project.user_id !== user.id) {
+      return new Response(
+        JSON.stringify({ error: 'Project not found or access denied' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
+      );
+    }
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 
     if (!LOVABLE_API_KEY) {
@@ -76,6 +139,26 @@ Focus on showing rather than telling, with rich sensory details and compelling d
 
     const data = await response.json();
     const generatedText = data.choices?.[0]?.message?.content || '';
+
+    // Increment credits used
+    await supabaseClient
+      .from('profiles')
+      .update({ 
+        credits_used_this_month: creditsUsed + 1 
+      })
+      .eq('id', user.id);
+
+    // Log the prompt
+    await supabaseClient
+      .from('prompts_log')
+      .insert({
+        user_id: user.id,
+        project_id: projectId,
+        prompt_type: 'story_generation',
+        input_prompt: prompt,
+        output_text: generatedText,
+        model_used: 'google/gemini-2.5-flash',
+      });
 
     return new Response(
       JSON.stringify({ text: generatedText }),
