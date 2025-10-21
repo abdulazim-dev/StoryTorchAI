@@ -145,7 +145,7 @@ const Auth = () => {
                 <Sparkles className="h-8 w-8 text-primary" />
               </div>
             </div>
-            <h1 className="mb-2 text-3xl font-bold">Welcome to StoryForge</h1>
+            <h1 className="mb-2 text-3xl font-bold">Welcome to StoryTorch</h1>
             <p className="text-muted-foreground">Begin your creative journey</p>
           </div>
 

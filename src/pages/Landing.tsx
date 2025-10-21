@@ -98,7 +98,7 @@ const Landing = () => {
               </h1>
               
               <p className="mb-8 text-xl text-muted-foreground md:text-2xl">
-                StoryForge empowers authors, anime writers, and creative studios to build immersive narratives with AI-assisted world-building, character development, and seamless continuity.
+                StoryTorch empowers authors, anime writers, and creative studios to build immersive narratives with AI-assisted world-building, character development, and seamless continuity.
               </p>
               
               <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
@@ -233,11 +233,11 @@ const Landing = () => {
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
             <div className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-primary" />
-              <span className="font-semibold">StoryForge</span>
+              <span className="font-semibold">StoryTorch</span>
             </div>
             <div className="text-center md:text-right">
               <p className="text-sm text-muted-foreground">
-                © 2025 StoryForge. AI Story Architect for creators.
+                © 2025 StoryTorch. AI Story Architect for creators.
               </p>
               <p className="text-xs text-muted-foreground mt-1">
                 Made by Abdul Azim

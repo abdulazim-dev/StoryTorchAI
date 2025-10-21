@@ -112,7 +112,7 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY not configured');
     }
 
-    const systemPrompt = `You are StoryForge, an expert creative writing assistant specialized in ${tone}-style storytelling. 
+    const systemPrompt = `You are StoryTorch, an expert creative writing assistant specialized in ${tone}-style storytelling. 
 Create engaging, vivid prose that captures character emotions and maintains narrative momentum. 
 Focus on showing rather than telling, with rich sensory details and compelling dialogue.`;
 
