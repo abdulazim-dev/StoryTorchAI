@@ -79,46 +79,47 @@ const Landing = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-secondary/20" />
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiM4YjVjZjYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE0YzMuMzEzIDAgNiAyLjY4NyA2IDZzLTIuNjg3IDYtNiA2LTYtMi42ODctNi02IDIuNjg3LTYgNi02ek0xOCAzNGMzLjMxMyAwIDYgMi42ODcgNiA2cy0yLjY4NyA2LTYgNi02LTIuNjg3LTYtNiAyLjY4Ny02IDYtNnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-30" />
-        
-        <div className="container relative mx-auto px-4 py-24 md:py-32">
-          <div className="mx-auto max-w-4xl text-center animate-slide-up">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm text-primary">
-              <Sparkles className="h-4 w-4" />
-              AI Story Architect
-            </div>
-            
-            <h1 className="mb-6 text-5xl font-bold tracking-tight md:text-7xl">
-              Craft <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Epic Stories</span>
-              <br />
-              with AI Power
-            </h1>
-            
-            <p className="mb-8 text-xl text-muted-foreground md:text-2xl">
-              StoryForge empowers authors, anime writers, and creative studios to build immersive narratives with AI-assisted world-building, character development, and seamless continuity.
-            </p>
-            
-            <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-              <Button
-                size="lg"
-                className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/30"
-                onClick={() => navigate("/auth")}
-              >
-                Start Creating Free
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={() => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })}
-              >
-                View Pricing
-              </Button>
+      <main>
+        <div className="relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-secondary/20" />
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiM4YjVjZjYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE0YzMuMzEzIDAgNiAyLjY4NyA2IDZzLTIuNjg3IDYtNiA2LTYtMi42ODctNi02IDIuNjg3LTYgNi02ek0xOCAzNGMzLjMxMyAwIDYgMi42ODcgNiA2cy0yLjY4NyA2LTYgNi02LTIuNjg3LTYtNiAyLjY4Ny02IDYtNnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-30" />
+          
+          <div className="container relative mx-auto px-4 py-24 md:py-32">
+            <div className="mx-auto max-w-4xl text-center animate-slide-up">
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm text-primary">
+                <Sparkles className="h-4 w-4" />
+                AI Story Architect
+              </div>
+              
+              <h1 className="mb-6 text-5xl font-bold tracking-tight md:text-7xl">
+                Craft <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Epic Stories</span>
+                <br />
+                with AI Power
+              </h1>
+              
+              <p className="mb-8 text-xl text-muted-foreground md:text-2xl">
+                StoryForge empowers authors, anime writers, and creative studios to build immersive narratives with AI-assisted world-building, character development, and seamless continuity.
+              </p>
+              
+              <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
+                <Button
+                  size="lg"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/30"
+                  onClick={() => navigate("/auth")}
+                >
+                  Start Creating Free
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={() => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })}
+                >
+                  View Pricing
+                </Button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
       {/* Features Section */}
       <div className="container mx-auto px-4 py-24">
@@ -224,6 +225,7 @@ const Landing = () => {
           </div>
         </div>
       </div>
+      </main>
 
       {/* Footer */}
       <footer className="border-t border-border/50">

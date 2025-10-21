@@ -204,7 +204,7 @@ const Dashboard = () => {
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8">
         {/* Hero Section */}
         <div className="mb-12">
           <h1 className="mb-4 text-4xl font-bold">Your Stories</h1>
@@ -356,7 +356,7 @@ const Dashboard = () => {
             ))}
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 };
