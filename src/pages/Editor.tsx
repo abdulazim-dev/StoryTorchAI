@@ -166,7 +166,31 @@ const Editor = () => {
     }
   };
 
-  const handleSelectChapter = (chapter: Chapter) => {
+  const handleSelectChapter = async (chapter: Chapter) => {
+    // Auto-save current chapter before switching
+    if (currentChapter && content !== currentChapter.content) {
+      try {
+        const wordCount = content.trim().split(/\s+/).filter(Boolean).length;
+        
+        await supabase
+          .from("chapters")
+          .update({
+            content,
+            word_count: wordCount,
+          })
+          .eq("id", currentChapter.id);
+        
+        // Update local state
+        setChapters(chapters.map(ch => 
+          ch.id === currentChapter.id 
+            ? { ...ch, content }
+            : ch
+        ));
+      } catch (error: any) {
+        logError('Editor.handleSelectChapter.autoSave', error);
+      }
+    }
+    
     setCurrentChapter(chapter);
     setContent(chapter.content || "");
   };
