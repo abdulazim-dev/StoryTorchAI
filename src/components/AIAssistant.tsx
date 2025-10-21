@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Sparkles, Loader2, Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { getUserFriendlyError } from "@/lib/errorHandler";
+import { getUserFriendlyError, logError } from "@/lib/errorHandler";
 import { z } from "zod";
 import { useSubscription } from "@/hooks/useSubscription";
 
@@ -73,14 +73,16 @@ const AIAssistant = ({ projectId, currentChapter, tone, onGenerate }: AIAssistan
     }
   };
 
-  // Debug logging
-  console.log('Subscription state:', {
-    loading: subscription.loading,
-    tier: subscription.tier,
-    creditsUsed: subscription.creditsUsedThisMonth,
-    creditsAllowed: subscription.monthlyChapterCredits,
-    canGenerate: subscription.canGenerateChapter()
-  });
+  // Debug logging (only in development)
+  if (import.meta.env.DEV) {
+    console.log('Subscription state:', {
+      loading: subscription.loading,
+      tier: subscription.tier,
+      creditsUsed: subscription.creditsUsedThisMonth,
+      creditsAllowed: subscription.monthlyChapterCredits,
+      canGenerate: subscription.canGenerateChapter()
+    });
+  }
 
   return (
     <div className="flex h-full flex-col p-4">

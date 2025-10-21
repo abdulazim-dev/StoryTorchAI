@@ -11,6 +11,15 @@ import { Plus, BookOpen, Clock, Sparkles, LogOut, Settings as SettingsIcon } fro
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { getUserFriendlyError, logError } from "@/lib/errorHandler";
+import { z } from "zod";
+
+// Project creation validation schema
+const projectSchema = z.object({
+  title: z.string().trim().min(1, "Title is required").max(200, "Title must be less than 200 characters"),
+  description: z.string().trim().max(2000, "Description must be less than 2000 characters").optional(),
+  genre: z.string().trim().max(100, "Genre must be less than 100 characters").optional(),
+  tone: z.string().trim().min(1).max(50)
+});
 
 interface Project {
   id: string;
@@ -47,7 +56,7 @@ const Dashboard = () => {
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError) {
-        console.error('Session error:', sessionError);
+        logError('Dashboard.sessionError', sessionError);
         navigate("/auth");
         return;
       }
@@ -106,14 +115,22 @@ const Dashboard = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error("Not authenticated");
 
+      // Validate inputs
+      const validated = projectSchema.parse({
+        title: newProject.title,
+        description: newProject.description || undefined,
+        genre: newProject.genre || undefined,
+        tone: newProject.tone
+      });
+
       const { data, error } = await supabase
         .from("projects")
         .insert({
           user_id: session.user.id,
-          title: newProject.title,
-          description: newProject.description,
-          genre: newProject.genre,
-          tone: newProject.tone,
+          title: validated.title,
+          description: validated.description || null,
+          genre: validated.genre || null,
+          tone: validated.tone,
         })
         .select()
         .single();
@@ -130,7 +147,11 @@ const Dashboard = () => {
         navigate(`/editor/${data.id}`);
       }
     } catch (error: any) {
-      toast.error(getUserFriendlyError(error));
+      if (error instanceof z.ZodError) {
+        toast.error(error.errors[0].message);
+      } else {
+        toast.error(getUserFriendlyError(error));
+      }
     } finally {
       setLoading(false);
     }
