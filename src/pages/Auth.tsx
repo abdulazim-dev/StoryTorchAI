@@ -9,6 +9,22 @@ import { Sparkles, Mail, Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { getUserFriendlyError } from "@/lib/errorHandler";
+import { z } from "zod";
+
+// Validation schemas
+const signUpSchema = z.object({
+  email: z.string().trim().email("Invalid email address").max(255, "Email must be less than 255 characters"),
+  password: z.string()
+    .min(8, "Password must be at least 8 characters")
+    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .regex(/[0-9]/, "Password must contain at least one number"),
+  fullName: z.string().trim().min(1, "Full name is required").max(100, "Name must be less than 100 characters")
+});
+
+const signInSchema = z.object({
+  email: z.string().trim().email("Invalid email address").max(255, "Email must be less than 255 characters"),
+  password: z.string().min(1, "Password is required")
+});
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -33,12 +49,19 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      const { error, data } = await supabase.auth.signUp({
-        email,
+      // Validate inputs
+      const validated = signUpSchema.parse({
+        email: email.trim(),
         password,
+        fullName: fullName.trim()
+      });
+
+      const { error, data } = await supabase.auth.signUp({
+        email: validated.email,
+        password: validated.password,
         options: {
           data: {
-            full_name: fullName,
+            full_name: validated.fullName,
           },
           emailRedirectTo: `${window.location.origin}/dashboard`,
         },
@@ -51,7 +74,11 @@ const Auth = () => {
       setPassword("");
       setFullName("");
     } catch (error: any) {
-      toast.error(getUserFriendlyError(error));
+      if (error instanceof z.ZodError) {
+        toast.error(error.errors[0].message);
+      } else {
+        toast.error(getUserFriendlyError(error));
+      }
     } finally {
       setLoading(false);
     }
@@ -62,9 +89,15 @@ const Auth = () => {
     setLoading(true);
 
     try {
+      // Validate inputs
+      const validated = signInSchema.parse({
+        email: email.trim(),
+        password
+      });
+
       const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email: validated.email,
+        password: validated.password,
       });
 
       if (error) throw error;
@@ -72,7 +105,11 @@ const Auth = () => {
       toast.success("Welcome back!");
       navigate("/dashboard");
     } catch (error: any) {
-      toast.error(getUserFriendlyError(error));
+      if (error instanceof z.ZodError) {
+        toast.error(error.errors[0].message);
+      } else {
+        toast.error(getUserFriendlyError(error));
+      }
     } finally {
       setLoading(false);
     }
