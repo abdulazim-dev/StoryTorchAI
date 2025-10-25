@@ -2,6 +2,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Sparkles, BookOpen, Users, Zap, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import heroBanner from "@/assets/hero-banner.jpg";
+import featuresBg from "@/assets/features-bg.jpg";
+import characterIllustration from "@/assets/character-illustration.jpg";
+import aiStorytelling from "@/assets/ai-storytelling.jpg";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -81,11 +85,14 @@ const Landing = () => {
       {/* Hero Section */}
       <main>
         <div className="relative overflow-hidden min-h-[90vh] flex items-center">
-          {/* Animated Background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-secondary/20" />
+          {/* Hero Background Image */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url(${heroBanner})` }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background/90" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,hsl(var(--primary)/0.15),transparent_50%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,hsl(var(--accent)/0.1),transparent_50%)]" />
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiM4YjVjZjYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE0YzMuMzEzIDAgNiAyLjY4NyA2IDZzLTIuNjg3IDYtNiA2LTYtMi42ODctNi02IDIuNjg3LTYgNi02ek0xOCAzNGMzLjMxMyAwIDYgMi42ODcgNiA2cy0yLjY4NyA2LTYgNi02LTIuNjg3LTYtNiAyLjY4Ny02IDYtNnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-20" />
           
           <div className="container relative mx-auto px-4 py-24 md:py-32">
             <div className="mx-auto max-w-5xl text-center">
@@ -149,8 +156,13 @@ const Landing = () => {
         </div>
 
       {/* Features Section */}
-      <div className="container mx-auto px-4 py-32 relative">
-        {/* Background decoration */}
+      <div className="container mx-auto px-4 py-32 relative overflow-hidden">
+        {/* Background Image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-10"
+          style={{ backgroundImage: `url(${featuresBg})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl" />
         
         <div className="mx-auto max-w-6xl relative">
@@ -248,12 +260,23 @@ const Landing = () => {
       {/* CTA Section */}
       <div className="container mx-auto px-4 py-32">
         <div className="mx-auto max-w-5xl">
-          <div className="relative overflow-hidden rounded-3xl border-2 border-primary/30 bg-gradient-to-br from-primary/20 via-accent/10 to-secondary/20 p-16 shadow-2xl shadow-primary/20">
+          <div className="relative overflow-hidden rounded-3xl border-2 border-primary/30 bg-gradient-to-br from-primary/20 via-accent/10 to-secondary/20 shadow-2xl shadow-primary/20">
+            {/* Background Images */}
+            <div 
+              className="absolute right-0 top-1/2 -translate-y-1/2 w-96 h-96 bg-cover bg-center opacity-20"
+              style={{ backgroundImage: `url(${aiStorytelling})` }}
+            />
+            <div 
+              className="absolute left-0 top-1/2 -translate-y-1/2 w-80 h-80 bg-cover bg-center opacity-15"
+              style={{ backgroundImage: `url(${characterIllustration})` }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/50 to-background/80" />
+            
             {/* Animated background elements */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl animate-pulse" />
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent/20 rounded-full blur-3xl animate-pulse delay-1000" />
             
-            <div className="relative z-10 text-center">
+            <div className="relative z-10 p-16">
               <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/20 backdrop-blur-sm">
                 <Sparkles className="h-8 w-8 text-primary animate-pulse" />
               </div>
