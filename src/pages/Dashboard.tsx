@@ -177,18 +177,21 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border/50 bg-card/30 backdrop-blur-sm">
-        <div className="container mx-auto flex items-center justify-between px-4 py-4">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-6 w-6 text-primary" />
+      <header className="sticky top-0 z-50 border-b border-border/50 glass-card shadow-lg">
+        <div className="container mx-auto flex items-center justify-between px-4 py-5">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/30">
+              <Sparkles className="h-5 w-5 text-white" />
+            </div>
             <span className="text-xl font-bold">StoryTorch</span>
           </div>
           
           <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">Welcome, {userName}</span>
+            <span className="text-sm text-muted-foreground hidden sm:inline">Welcome, <span className="text-foreground font-semibold">{userName}</span></span>
             <Button
               variant="ghost"
               size="icon"
+              className="hover:bg-primary/10"
               onClick={() => navigate("/settings")}
             >
               <SettingsIcon className="h-5 w-5" />
@@ -196,6 +199,7 @@ const Dashboard = () => {
             <Button
               variant="ghost"
               size="icon"
+              className="hover:bg-destructive/10"
               onClick={handleSignOut}
             >
               <LogOut className="h-5 w-5" />
@@ -204,11 +208,11 @@ const Dashboard = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-12">
         {/* Hero Section */}
-        <div className="mb-12">
-          <h1 className="mb-4 text-4xl font-bold">Your Stories</h1>
-          <p className="text-lg text-muted-foreground">
+        <div className="mb-16 text-center">
+          <h1 className="mb-6 gradient-text animate-fade-in">Your Stories</h1>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto animate-fade-in">
             Continue your creative journey or start a new adventure
           </p>
         </div>
@@ -216,14 +220,15 @@ const Dashboard = () => {
         {/* Create New Project */}
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
-            <Card className="group mb-8 cursor-pointer border-2 border-dashed border-primary/30 bg-card/30 p-8 text-center transition-all hover:border-primary/60 hover:bg-card/50">
-              <div className="flex flex-col items-center gap-4">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 transition-transform group-hover:scale-110">
-                  <Plus className="h-8 w-8 text-primary" />
+            <Card className="group mb-12 cursor-pointer border-2 border-dashed border-primary/30 glass-card p-12 text-center transition-all duration-500 hover:elevated-card hover:scale-[1.02] relative overflow-hidden">
+              <div className="absolute inset-0 shimmer opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="relative z-10 flex flex-col items-center gap-6">
+                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-xl group-hover:shadow-primary/30">
+                  <Plus className="h-10 w-10 text-primary" />
                 </div>
                 <div>
-                  <h3 className="mb-2 text-xl font-semibold">Start New Project</h3>
-                  <p className="text-muted-foreground">Begin crafting your next masterpiece</p>
+                  <h3 className="mb-3 text-2xl font-bold group-hover:text-primary transition-colors">Start New Project</h3>
+                  <p className="text-muted-foreground text-lg">Begin crafting your next masterpiece</p>
                 </div>
               </div>
             </Card>
@@ -314,43 +319,47 @@ const Dashboard = () => {
             <p className="text-lg text-muted-foreground">No projects yet. Create one to get started!</p>
           </div>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {projects.map((project) => (
               <Card
                 key={project.id}
-                className="group cursor-pointer border-border/50 bg-card/50 p-6 transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10"
+                className="group cursor-pointer glass-card p-8 transition-all duration-500 hover:elevated-card hover:-translate-y-2 relative overflow-hidden"
                 onClick={() => navigate(`/editor/${project.id}`)}
               >
-                <div className="mb-4">
-                  <div className="mb-2 flex items-start justify-between">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                      <BookOpen className="h-5 w-5 text-primary" />
-                    </div>
-                    <span className="text-xs text-muted-foreground capitalize">
-                      {project.tone}
-                    </span>
-                  </div>
-                  
-                  <h3 className="mb-2 text-xl font-semibold line-clamp-1">{project.title}</h3>
-                  
-                  {project.description && (
-                    <p className="mb-3 text-sm text-muted-foreground line-clamp-2">
-                      {project.description}
-                    </p>
-                  )}
-                  
-                  {project.genre && (
-                    <div className="mb-3">
-                      <span className="inline-block rounded-full bg-secondary/10 px-3 py-1 text-xs text-secondary">
-                        {project.genre}
+                <div className="absolute inset-0 shimmer opacity-0 group-hover:opacity-100 transition-opacity" />
+                
+                <div className="relative z-10">
+                  <div className="mb-6">
+                    <div className="mb-4 flex items-start justify-between">
+                      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-lg group-hover:shadow-primary/30">
+                        <BookOpen className="h-7 w-7 text-primary" />
+                      </div>
+                      <span className="text-xs font-semibold text-muted-foreground capitalize bg-secondary/10 px-3 py-1.5 rounded-full">
+                        {project.tone}
                       </span>
                     </div>
-                  )}
-                </div>
+                    
+                    <h3 className="mb-3 text-2xl font-bold line-clamp-1 group-hover:text-primary transition-colors">{project.title}</h3>
+                    
+                    {project.description && (
+                      <p className="mb-4 text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                        {project.description}
+                      </p>
+                    )}
+                    
+                    {project.genre && (
+                      <div className="mb-4">
+                        <span className="inline-block rounded-full bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 px-4 py-1.5 text-xs font-medium text-primary">
+                          {project.genre}
+                        </span>
+                      </div>
+                    )}
+                  </div>
 
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Clock className="h-3 w-3" />
-                  Updated {new Date(project.updated_at).toLocaleDateString()}
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground pt-4 border-t border-border/50">
+                    <Clock className="h-3.5 w-3.5" />
+                    Updated {new Date(project.updated_at).toLocaleDateString()}
+                  </div>
                 </div>
               </Card>
             ))}
