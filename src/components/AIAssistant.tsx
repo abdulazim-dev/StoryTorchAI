@@ -85,60 +85,80 @@ const AIAssistant = ({ projectId, currentChapter, tone, onGenerate }: AIAssistan
   }
 
   return (
-    <div className="flex h-full flex-col p-4">
-      <div className="mb-4">
-        <h3 className="flex items-center gap-2 font-semibold">
-          <Sparkles className="h-5 w-5 text-primary" />
+    <div className="flex h-full flex-col p-6">
+      <div className="mb-6 pb-4 border-b border-border/30">
+        <h3 className="flex items-center gap-2 font-semibold text-lg mb-2">
+          <Sparkles className="h-5 w-5 text-primary animate-pulse" />
           AI Assistant
         </h3>
-        <p className="text-xs text-muted-foreground">Generate and enhance your story</p>
-        <div className="mt-2 text-xs text-muted-foreground">
-          {subscription.loading ? (
-            <span>Loading credits...</span>
-          ) : (
-            <span>
-              {subscription.creditsUsedThisMonth} / {subscription.monthlyChapterCredits} credits used this month
-              {subscription.tier === 'free' && ' (Free)'}
-              {subscription.tier === 'pro' && ' (Pro)'}
-              {subscription.tier === 'studio' && ' (Studio)'}
-            </span>
-          )}
+        <p className="text-xs text-muted-foreground mb-3">Generate and enhance your story with AI</p>
+        
+        <div className="glass-card p-3 space-y-2">
+          <div className="text-xs text-muted-foreground">
+            {subscription.loading ? (
+              <div className="flex items-center gap-2">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                <span>Loading credits...</span>
+              </div>
+            ) : (
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium">Credits Used</span>
+                  <span className="font-semibold gradient-text">
+                    {subscription.creditsUsedThisMonth} / {subscription.monthlyChapterCredits}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>Plan</span>
+                  <span className="text-primary font-medium">
+                    {subscription.tier === 'free' && '✨ Free'}
+                    {subscription.tier === 'pro' && '🚀 Pro'}
+                    {subscription.tier === 'studio' && '💎 Studio'}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      <Textarea
-        placeholder="Describe what you want to write..."
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
-        className="mb-4 flex-1"
-        maxLength={2000}
-      />
-      <p className="mb-2 text-xs text-muted-foreground">
-        {prompt.length}/2000 characters
-      </p>
+      <div className="flex-1 flex flex-col">
+        <Textarea
+          placeholder="Describe what you want to write... Be specific for better results! ✨"
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          className="mb-3 flex-1 min-h-[200px] resize-none transition-all focus:shadow-elevated"
+          maxLength={2000}
+        />
+        <div className="flex items-center justify-between mb-4 text-xs text-muted-foreground">
+          <span>Be detailed for best results</span>
+          <span>{prompt.length}/2000</span>
+        </div>
 
-      <Button
-        onClick={handleGenerate}
-        disabled={generating || !subscription.canGenerateChapter()}
-        className="w-full bg-primary"
-      >
-        {!subscription.canGenerateChapter() ? (
-          <>
-            <Lock className="mr-2 h-4 w-4" />
-            Out of Credits
-          </>
-        ) : generating ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Generating...
-          </>
-        ) : (
-          <>
-            <Sparkles className="mr-2 h-4 w-4" />
-            Generate
-          </>
-        )}
-      </Button>
+        <Button
+          onClick={handleGenerate}
+          disabled={generating || !subscription.canGenerateChapter()}
+          className="w-full hover-lift transition-spring"
+          size="lg"
+        >
+          {!subscription.canGenerateChapter() ? (
+            <>
+              <Lock className="mr-2 h-4 w-4" />
+              Out of Credits
+            </>
+          ) : generating ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Generating Magic...
+            </>
+          ) : (
+            <>
+              <Sparkles className="mr-2 h-4 w-4" />
+              Generate Content
+            </>
+          )}
+        </Button>
+      </div>
     </div>
   );
 };
