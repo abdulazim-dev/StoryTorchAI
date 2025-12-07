@@ -5,11 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Sparkles, Mail, Lock } from "lucide-react";
+import { Sparkles, Mail, Lock, ShieldAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { getUserFriendlyError } from "@/lib/errorHandler";
 import { z } from "zod";
+import { useAuthRateLimit } from "@/hooks/useAuthRateLimit";
 
 // Validation schemas
 const signUpSchema = z.object({
@@ -33,6 +34,14 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
 
+  const {
+    isLocked,
+    recordFailedAttempt,
+    recordSuccessfulAttempt,
+    getAttemptsRemaining,
+    formatRemainingTime,
+  } = useAuthRateLimit();
+
   useEffect(() => {
     // Check if user is already logged in
     const checkUser = async () => {
@@ -46,6 +55,12 @@ const Auth = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (isLocked()) {
+      toast.error(`Too many attempts. Please try again in ${formatRemainingTime()}`);
+      return;
+    }
+    
     setLoading(true);
 
     try {
@@ -69,15 +84,23 @@ const Auth = () => {
 
       if (error) throw error;
 
+      recordSuccessfulAttempt();
       toast.success("Account created successfully! You can now sign in.");
       setEmail("");
       setPassword("");
       setFullName("");
     } catch (error: any) {
+      recordFailedAttempt();
+      const attemptsLeft = getAttemptsRemaining();
+      
       if (error instanceof z.ZodError) {
         toast.error(error.errors[0].message);
       } else {
         toast.error(getUserFriendlyError(error));
+      }
+      
+      if (attemptsLeft > 0 && attemptsLeft <= 2) {
+        toast.warning(`${attemptsLeft} attempt${attemptsLeft === 1 ? '' : 's'} remaining before lockout`);
       }
     } finally {
       setLoading(false);
@@ -86,6 +109,12 @@ const Auth = () => {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (isLocked()) {
+      toast.error(`Too many attempts. Please try again in ${formatRemainingTime()}`);
+      return;
+    }
+    
     setLoading(true);
 
     try {
@@ -102,13 +131,21 @@ const Auth = () => {
 
       if (error) throw error;
 
+      recordSuccessfulAttempt();
       toast.success("Welcome back!");
       navigate("/dashboard");
     } catch (error: any) {
+      recordFailedAttempt();
+      const attemptsLeft = getAttemptsRemaining();
+      
       if (error instanceof z.ZodError) {
         toast.error(error.errors[0].message);
       } else {
         toast.error(getUserFriendlyError(error));
+      }
+      
+      if (attemptsLeft > 0 && attemptsLeft <= 2) {
+        toast.warning(`${attemptsLeft} attempt${attemptsLeft === 1 ? '' : 's'} remaining before lockout`);
       }
     } finally {
       setLoading(false);
@@ -116,6 +153,11 @@ const Auth = () => {
   };
 
   const handleGoogleSignIn = async () => {
+    if (isLocked()) {
+      toast.error(`Too many attempts. Please try again in ${formatRemainingTime()}`);
+      return;
+    }
+    
     setLoading(true);
     try {
       const { error } = await supabase.auth.signInWithOAuth({
@@ -127,10 +169,13 @@ const Auth = () => {
 
       if (error) throw error;
     } catch (error: any) {
+      recordFailedAttempt();
       toast.error(getUserFriendlyError(error));
       setLoading(false);
     }
   };
+
+  const locked = isLocked();
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
@@ -148,6 +193,18 @@ const Auth = () => {
             <h1 className="mb-2 text-3xl font-bold">Welcome to StoryTorch</h1>
             <p className="text-muted-foreground">Begin your creative journey</p>
           </div>
+
+          {locked && (
+            <div className="mb-6 flex items-center gap-3 rounded-lg border border-destructive/30 bg-destructive/10 p-4">
+              <ShieldAlert className="h-5 w-5 flex-shrink-0 text-destructive" />
+              <div>
+                <p className="text-sm font-medium text-destructive">Account temporarily locked</p>
+                <p className="text-sm text-destructive/80">
+                  Too many failed attempts. Try again in {formatRemainingTime()}
+                </p>
+              </div>
+            </div>
+          )}
 
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
@@ -169,6 +226,7 @@ const Auth = () => {
                       onChange={(e) => setEmail(e.target.value)}
                       className="pl-10"
                       required
+                      disabled={locked}
                     />
                   </div>
                 </div>
@@ -185,6 +243,7 @@ const Auth = () => {
                       onChange={(e) => setPassword(e.target.value)}
                       className="pl-10"
                       required
+                      disabled={locked}
                     />
                   </div>
                 </div>
@@ -192,9 +251,9 @@ const Auth = () => {
                 <Button
                   type="submit"
                   className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                  disabled={loading}
+                  disabled={loading || locked}
                 >
-                  {loading ? "Signing in..." : "Sign In"}
+                  {locked ? `Locked (${formatRemainingTime()})` : loading ? "Signing in..." : "Sign In"}
                 </Button>
               </form>
             </TabsContent>
@@ -210,6 +269,7 @@ const Auth = () => {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     required
+                    disabled={locked}
                   />
                 </div>
 
@@ -225,6 +285,7 @@ const Auth = () => {
                       onChange={(e) => setEmail(e.target.value)}
                       className="pl-10"
                       required
+                      disabled={locked}
                     />
                   </div>
                 </div>
@@ -242,6 +303,7 @@ const Auth = () => {
                       className="pl-10"
                       required
                       minLength={6}
+                      disabled={locked}
                     />
                   </div>
                 </div>
@@ -249,9 +311,9 @@ const Auth = () => {
                 <Button
                   type="submit"
                   className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                  disabled={loading}
+                  disabled={loading || locked}
                 >
-                  {loading ? "Creating account..." : "Create Account"}
+                  {locked ? `Locked (${formatRemainingTime()})` : loading ? "Creating account..." : "Create Account"}
                 </Button>
               </form>
             </TabsContent>
@@ -270,7 +332,7 @@ const Auth = () => {
             variant="outline"
             className="w-full"
             onClick={handleGoogleSignIn}
-            disabled={loading}
+            disabled={loading || locked}
           >
             <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
               <path
@@ -290,7 +352,7 @@ const Auth = () => {
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
               />
             </svg>
-            Sign in with Google
+            {locked ? `Locked (${formatRemainingTime()})` : "Sign in with Google"}
           </Button>
 
           <div className="mt-6 text-center">
